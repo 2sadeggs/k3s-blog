@@ -1,0 +1,41 @@
+# K3S HTTP强制转HTTPS
+引用：https://forums.rancher.cn/t/k3s-traefik-http-https/450
+
+要看你是需要全局https跳转，还是具体某个ingress做跳转。
+如需全局HTTPS跳转，直接在helm chart 
+/var/lib/rancher/k3s/server/manifests/traefik.yaml
+
+修改前：
+  valuesContent: |-
+    deployment:
+      podAnnotations:
+        prometheus.io/port: "8082"
+        prometheus.io/scrape: "true"
+修改后：
+  valuesContent: |-
+    ports:
+      web:
+        redirectTo: websecure
+    deployment:
+      podAnnotations:
+        prometheus.io/port: "8082"
+        prometheus.io/scrape: "true"
+
+如果只需为某个ingress进行https跳转，则需先创建一个自动跳转的traefik middleware
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect
+  namespace: example
+
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+
+然后在ingress yaml的annotation中进行引用
+metadata:
+  ...
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: example-redirect@kubernetescrd
