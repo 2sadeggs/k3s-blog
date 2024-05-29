@@ -1,0 +1,1 @@
+kubectl create job tmp-logrotate --from cronjob/logrotate
