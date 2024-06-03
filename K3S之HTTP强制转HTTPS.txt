@@ -12,14 +12,19 @@
         prometheus.io/port: "8082"
         prometheus.io/scrape: "true"
 修改后：
-  valuesContent: |-
     ports:
+      websecure:
+        tls:
+          enabled: true
       web:
-        redirectTo: websecure
+        redirectTo:
+          port: websecure
     deployment:
       podAnnotations:
         prometheus.io/port: "8082"
         prometheus.io/scrape: "true"
+
+
 
 如果只需为某个ingress进行https跳转，则需先创建一个自动跳转的traefik middleware
 ---
